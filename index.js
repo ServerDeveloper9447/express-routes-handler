@@ -114,7 +114,7 @@ app.use((req,res,next) => {
 module.exports.page404 = (app,func) => {
   if(!func) {
     app.get('/*',(req,res) => {
-      res.sendStatus(404).send({status:404,message:"Not Found"})
+      res.status(404).send({status:404,message:"Not Found"})
     })
   } else {
     app.get('/*',(req,res) => {
