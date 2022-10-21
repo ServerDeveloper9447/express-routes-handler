@@ -30,9 +30,43 @@ const tableconf = {
     alignment: 'center'
   }]
 };
-function parseArray(arr) {
-  if (typeof (arr) != "object") return arr;
-  return arr.join("\n")
+function parseArrayList(arr) {
+  if (typeof (arr) == "object") {
+    const e = []
+    arr.forEach(m => {
+      if(m.startsWith("/")) {
+        e.push(m)
+      } else {
+        e.push(`/${m}`)
+      }
+    })
+    return e.join("\n");
+  } else {
+    if (arr.startsWith("/")) {
+      return arr
+    } else {
+      return `/${arr}`
+    }
+  }
+}
+function parse(arg) {
+  if(typeof (arg) == 'object') {
+    const e = []
+    arg.forEach(m => {
+      if(m.startsWith("/")) {
+        e.push(m)
+      } else {
+        e.push(`/${m}`)
+      }
+    })
+    return e
+  } else {
+    if(arg.startsWith("/")) {
+      return arg
+    } else {
+      return `/${arg}`
+    }
+  }
 }
 function cmt(m) {
   const str = m.toLowerCase()
@@ -62,9 +96,9 @@ module.exports = (app,path_to_dir) => {
     if (!route.run) throw new Error(`${file} cannot be loaded due to no run parameter provided. Please move the file to a different directory or provide valid parameters to avoid errors.`);
     if ((typeof route.run == 'object') || (typeof route.method == 'object')) throw new Error("The run and method parameter must be a string.");
     subarr.push(!route.method ? cmt("GET") : cmt(route.method.toUpperCase()))
-    subarr.push(parseArray(route.name.startsWith("/") ? route.name : `/${route.name}`))
+    subarr.push(parseArrayList(route.name))
     subarr.push(file)
-    app[!route.method ? "get" : route.method.toLowerCase()](route.name.startsWith("/") ? route.name : `/${route.name}`, async (req, res) => {
+    app[!route.method ? "get" : route.method.toLowerCase()](parse(route.name), async (req, res) => {
       route.run(req, res);
     })
     mainarr.push(subarr)
