@@ -1,0 +1,24 @@
+{
+    "name": "express-routes-handler",
+    "version": "1.0.0",
+    "description": "Simplest routes handler for Express",
+    "main": "index.js",
+    "dependencies": {
+      "chalk":"^4.1.2",
+      "table": "^6.8.0"
+    },
+    "devDependencies": {},
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+      "express",
+      "routes",
+      "handler",
+      "route",
+      "router",
+      "simple"
+    ],
+    "author": "Server Developer#9447 aka Duck Dev",
+    "license": "ISC"
+  }
