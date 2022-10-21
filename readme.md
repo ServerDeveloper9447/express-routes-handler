@@ -64,8 +64,8 @@ handler.keeptrack(app,/* Omittable too => */(data) => {
 ```
 ---
 What may the config contain
-```json
-{
+```js
+const data = {
     "ip" : { // For tracking which ip is requesting
         "bool": /* true or false */,
         "header": /* if bool is true which header contains the ip (Omittable) */ 
