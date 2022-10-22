@@ -106,42 +106,52 @@ module.exports = (app,path_to_dir) => {
   console.log(table(mainarr, tableconf))
 }
 
-module.exports.keeptrack = (app,func,config = {ip:{bool:false},agent:{bool:false},query:false,route:false}) => {
+module.exports.keeptrack = (app,func,options = {ip:true,'ip-header':'',agent:true,'agent-header':'',query:true,route:true,status:true}) => {
+  var config = {ip:true,'ip-header':'',agent:true,'agent-header':'',query:true,route:true,status:true};
+  Object.keys(options).forEach(f => {
+    config[f] = options[f]
+  });
+  Object.keys(config).forEach(m => {
+    if(typeof options[m] == 'object') {
+      throw new Error(`${m} must be a string.`)
+    }
+  })
   if(!app) throw new Error("Must provide app where app = express()");
   try {JSON.parse(JSON.stringify(config))} catch(err) {
     throw new Error("Config must be a JSON")
   }
+
 app.use((req,res,next) => {
-  const data = {ip:req.ip,"user-agent":req.headers['user-agent'],route:req.url,query:req.query};
+  var data = {ip:req.ip,"user-agent":req.headers['user-agent'],route:req.url,query:req.query};
   ((bool,header,req)=> {
-    if(!bool) return;
+    if(bool == false) return delete data['ip'];
     if(typeof bool != 'boolean') throw new Error(`${bool} is not a boolean`);
     if(!header) {
-      data.ip = req.ip
+      data.ip = req.socket.remoteAddress
     } else {
-      data.ip = req.header[header]
+      data.ip = req.headers[header]
     }
-  })(!config.ip.bool ? false : config.ip.bool,!config.ip.header ? null : config.ip.header,req);
+  })(!config.ip ? false : config.ip,!config['ip-header'] ? null : config['ip-header'],req);
   ((bool,header,req) => {
-    if(!bool) return;
+    if(bool == false) return delete data['user-agent'];
     if(typeof bool != 'boolean') throw new Error(`${bool} is not a boolean`);
     if(!header) {
       data['user-agent'] = req.headers['user-agent']
     } else {
       data['user-agent'] = req.headers[header]
     }
-  })(!config.agent.bool ? false : config.agent.bool,!config.agent.header ? null : config.agent.header,req);
+  })(!config.agent ? false : config.agent,!config['agent-header'] ? null : config['agent-header'],req);
   ((bool,req) => {
-    if(!bool) return;
+    if(bool == false) return delete data['route'];
     if(typeof bool != 'boolean') throw new Error(`${bool} is not a boolean`);
     data['route'] = req.url
   })(!config.route ? false : config.route,req);
   ((bool,req) => {
-    if(!bool) return;
+    if(bool == false) return delete data['query'];
     if(typeof bool != 'boolean') throw new Error(`${bool} is not a boolean`);
     data['query'] = req.query
   })(!config.query ? false : config.query,req);
-  return func(data), next();
+    return func(data), next();
   })
 }
 
