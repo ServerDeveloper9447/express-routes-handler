@@ -1,15 +1,18 @@
 # Express Routes Handler
 ### _Simple Express Routes Handler for Beginners_
 
->**You will need to install `express` separately.**
+> **Now comes pre-installed with express**
 
 ---
 **Simple start**
 `index.js`
 ```js
 const express = require('express'); //ah yes, semicolons
-const app = express();
+/* Or you can do
+const {express} = require('express-routes-handler');
+*/
 const handler = require('express-routes-handler');
+const app = express();
 ```
 
 **Now create a folder with your desired name. I chose `routes`.<br>
@@ -22,11 +25,13 @@ Now put inside this code:
 ```js
 module.exports = {
   name: '/status', // This can be an array.
+  disabled: false, // Can be omitted. Stops from the endpoint being loaded. Default is false
   method: 'get', // Can be omitted. Default is 'get'
   run: (req, res) => { // Like a normal function
     res.sendStatus(200)
   }
 }
+// Disabled endpoints show up at the top of the table in console
 ```
 
 After you've done this go to the main `index.js` file and do this
@@ -63,21 +68,26 @@ handler.keeptrack(app,/* Omittable too => */(data) => {
 // This also must be put before the handler(app,'./routes') function
 ```
 ---
-What may the config contain
+What may the config contain. (Already filled keys are default values)
 ```js
-const data = {
-    "ip" : { // For tracking which ip is requesting
-        "bool": /* true or false */,
-        "header": /* if bool is true which header contains the ip (Omittable) */ 
-    },
-    "agent" : { // For tracking user-agent
-        "bool": /* true or false */,
-        "header": /* if bool is true which header contains the ip (Omittable) */
-    },
-    "route" : /* true or false | For tracking request route*/,
-    "query" : /* true or false | For tracking query parameters*/
-}
+const options = { 
+    ip: true, // IP tracking enabled?
+    ip_header: '', // IP tracking header
+    agent: true, // User-agent tracking enabled?
+    agent_header: '', // User-agent header
+    query: true, // Query parameter tracking enabled?
+    route: true // Route tracking enabled?
+} 
 ```
+---
+> Changelog 22-Oct-22
+> ```diff
+> + Code Documentation
+> + Fixed some array problems
+> + Changed the structure keys of config
+> + Added disabled param
+> + Added a status column to the console table
+> ```
 ---
 ## This package may or may not be used in advanced development
 This package will not be responsible for breaking of your express server (honestly, how that would even happen?)<br>Feel free to check the source code and suggest new features<br>

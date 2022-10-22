@@ -4,25 +4,25 @@
     "description": "Simplest routes handler for Express",
     "main": "index.js",
     "dependencies": {
-      "chalk":"^4.1.2",
-      "table": "^6.8.0"
+        "chalk": "^4.1.2",
+        "express": "^4.18.2",
+        "table": "^6.8.0"
     },
-    "devDependencies": {},
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/ServerDeveloper9447/express-routes-handler.git"
     },
     "keywords": [
-      "express",
-      "routes",
-      "handler",
-      "route",
-      "router",
-      "simple"
+        "express",
+        "routes",
+        "handler",
+        "route",
+        "router",
+        "simple"
     ],
     "author": "Server Developer#9447 aka Duck Dev",
     "license": "ISC"
-  }
+}
