@@ -76,6 +76,17 @@ function cmt(m) {
   if (!data[str]) return chalk.bgRed(m.toUpperCase());
   return data[str]
 }
+function parseMethodList(arg) {
+  if(typeof (arg) == 'object') {
+    var e = [];
+    arg.forEach(ar => {
+      e.push(cmt(ar))
+    })
+    return e.join("\n")
+  } else {
+    return cmt(arr)
+  }
+}
 /**
 * @param {Object} app Express Initialized. Ex: `express()`
 * @param {String} path_to_dir Path to the directory with all the endpoint files
@@ -100,19 +111,35 @@ module.exports = (app, path_to_dir) => {
     const route = require(`${path}/${file}`);
     if (!route.name) throw new Error(`${file} cannot be loaded due to the route name parameter being empty. Please move the file to a different directory or provide valid parameters to avoid errors.`);
     if (!route.run) throw new Error(`${file} cannot be loaded due to no run parameter provided. Please move the file to a different directory or provide valid parameters to avoid errors.`);
-    if ((typeof route.run == 'object') || (typeof route.method == 'object')) throw new Error("The run and method parameter must be a string.");
+    if ((typeof route.run == 'object')) throw new Error("The run parameter must be a string.");
     const disable = route.disabled;
     if(typeof disable == 'object') throw new Error("Disabled parameter must not be an object");
     const disabled = !disable ? false : disable;
     if(typeof disabled != 'boolean') throw new Error("Disabled parameter must be a boolean");
     if(disabled) return subarr.unshift(chalk.red("Disabled")),subarr.unshift(file),subarr.unshift(parseArrayList(route.name)),subarr.unshift(!route.method ? cmt("GET") : cmt(route.method.toUpperCase())),mainarr.unshift(subarr);
-    subarr.push(!route.method ? cmt("GET") : cmt(route.method.toUpperCase()))
-    subarr.push(parseArrayList(route.name))
-    subarr.push(file)
-    subarr.push(chalk.green("Enabled"))
-    app[!route.method ? "get" : route.method.toLowerCase()](parse(route.name), async (req, res) => {
-      route.run(req, res);
-    })
+    if(!route.method) {
+      subarr.push(cmt("GET"))
+    } else {
+      if (typeof route.method == 'object') {
+        subarr.push(parseMethodList(route.method.filter(x => x != null)))
+        route.method.filter(x => x != null).forEach(m => {
+          app[m.toLowerCase()](parse(route.name), async (req,res) => {
+            route.run(req,res)
+          })
+        })
+        subarr.push(parseArrayList(route.name))
+        subarr.push(file)
+        subarr.push(chalk.green("Enabled"))
+      } else {
+        subarr.push(parseMethodList(route.method))
+        app[route.method](parse(route.name),async (req,res) => {
+          route.run(req,res)
+        })
+        subarr.push(parseArrayList(route.name))
+        subarr.push(file)
+        subarr.push(chalk.green("Enabled"))
+      }
+    }
     mainarr.push(subarr)
   })
   mainarr.unshift([chalk.yellowBright("Method"), chalk.yellowBright("Route"), chalk.yellowBright("File"), chalk.yellowBright("Status")])
@@ -130,10 +157,10 @@ module.exports = (app, path_to_dir) => {
  * @param {String} [options.agent_header] - Header in which the User-Agent will be contained. (optional)
  * @param {Boolean} [options.query] - Query params tracking enabled?. Default = true (optional)
  * @param {Boolean} [options.route] - Route tracking enabled?. Default = true (optional)
- * @returns { ip: , "user-agent": , route: , query:  }
+ * @param {Boolean} [options.method] - Method tracking enabled?. Default = true (optional)
  */
-module.exports.keeptrack = (app, func, options = { ip: true, 'ip_header': '', agent: true, 'agent_header': '', query: true, route: true}) => {
-  var config = { ip: true, 'ip_header': '', agent: true, 'agent_header': '', query: true, route: true};
+module.exports.keeptrack = (app, func, options = { ip: true, 'ip_header': '', agent: true, 'agent_header': '', query: true, route: true, method:true}) => {
+  var config = { ip: true, 'ip_header': '', agent: true, 'agent_header': '', query: true, route: true, method:true};
   Object.keys(options).forEach(f => {
     config[f] = options[f]
   });
@@ -177,6 +204,11 @@ module.exports.keeptrack = (app, func, options = { ip: true, 'ip_header': '', ag
       if (typeof bool != 'boolean') throw new Error(`${bool} is not a boolean`);
       data['query'] = req.query
     })(!config.query ? false : config.query, req);
+    ((bool,req) => {
+      if (bool == false) return delete data['query'];
+      if (typeof bool != 'boolean') throw new Error(`${bool} is not a boolean`);
+      data['method'] = req.method
+    })(!config.method ? false : config.method, req);
     return func(data), next();
   })
 }

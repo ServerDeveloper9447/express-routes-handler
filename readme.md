@@ -26,7 +26,7 @@ Now put inside this code:
 module.exports = {
   name: '/status', // This can be an array.
   disabled: false, // Can be omitted. Stops from the endpoint being loaded. Default is false
-  method: 'get', // Can be omitted. Default is 'get'
+  method: 'get', // Can be omitted. Can be an array. Default is 'get'
   run: (req, res) => { // Like a normal function
     res.sendStatus(200)
   }
@@ -55,7 +55,7 @@ handler.page404( app, ( req , res ) => {
     // res.status(404).send({status:404})
     // Or something of your choice
 })
-// This must be put before the handler(app,'./routes') function
+// This must be put after the handler(app,'./routes') function
 ```
 
 ---
@@ -65,7 +65,7 @@ Or to keep track of the requests
 handler.keeptrack(app,/* Omittable too => */(data) => {
     console.log(data)
 },/*Here lies the omitttable config*/)
-// This also must be put before the handler(app,'./routes') function
+// This must be put before the handler(app,'./routes') function
 ```
 ---
 What may the config contain. (Already filled keys are default values)
@@ -74,19 +74,18 @@ const options = {
     ip: true, // IP tracking enabled?
     ip_header: '', // IP tracking header
     agent: true, // User-agent tracking enabled?
-    agent_header: '', // User-agent header
+    agent_header: 'user-agent', // User-agent header
     query: true, // Query parameter tracking enabled?
-    route: true // Route tracking enabled?
+    route: true, // Route tracking enabled?
+    method: true // Method tracking enabled? (new)
 } 
 ```
 ---
-> Changelog 22-Oct-22
+> Changelog 26-Oct-22
 > ```diff
-> + Code Documentation
-> + Fixed some array problems
-> + Changed the structure keys of config
-> + Added disabled param
-> + Added a status column to the console table
+> + Added multiple method on one endpoint support
+> + Added method tracking on keeptrack function
+> + Improved overall performance
 > ```
 ---
 ## This package may or may not be used in advanced development
