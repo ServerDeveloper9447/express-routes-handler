@@ -84,7 +84,7 @@ function parseMethodList(arg) {
     })
     return e.join("\n")
   } else {
-    return cmt(arr)
+    return cmt(arg)
   }
 }
 /**
@@ -119,6 +119,12 @@ module.exports = (app, path_to_dir) => {
     if(disabled) return subarr.unshift(chalk.red("Disabled")),subarr.unshift(file),subarr.unshift(parseArrayList(route.name)),subarr.unshift(!route.method ? cmt("GET") : cmt(route.method.toUpperCase())),mainarr.unshift(subarr);
     if(!route.method) {
       subarr.push(cmt("GET"))
+      app.get(parse(route.name),async (req,res) => {
+        route.run(req,res)
+      })
+      subarr.push(parseArrayList(route.name))
+      subarr.push(file)
+      subarr.push(chalk.green("Enabled"))
     } else {
       if (typeof route.method == 'object') {
         subarr.push(parseMethodList(route.method.filter(x => x != null)))
