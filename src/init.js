@@ -116,7 +116,7 @@ module.exports = (app, path_to_dir) => {
     if(typeof disable == 'object') throw new Error("Disabled parameter must not be an object");
     const disabled = !disable ? false : disable;
     if(typeof disabled != 'boolean') throw new Error("Disabled parameter must be a boolean");
-    if(disabled) return subarr.unshift(chalk.red("Disabled")),subarr.unshift(file),subarr.unshift(parseArrayList(route.name)),subarr.unshift(!route.method ? cmt("GET") : cmt(route.method.toUpperCase())),mainarr.unshift(subarr);
+    if(disabled) return subarr.unshift(chalk.red("Disabled")),subarr.unshift(file),subarr.unshift(parseArrayList(route.name)),subarr.unshift(!route.method ? cmt("GET") : parseMethodList(route.method)),mainarr.unshift(subarr);
     if(!route.method) {
       subarr.push(cmt("GET"))
       app.get(parse(route.name),async (req,res) => {
