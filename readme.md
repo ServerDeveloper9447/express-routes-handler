@@ -83,9 +83,7 @@ const options = {
 ---
 > Changelog 26-Oct-22
 > ```diff
-> + Added multiple method on one endpoint support
-> + Added method tracking on keeptrack function
-> + Improved overall performance
+> + Fixed breaking of package when disabled route has array in method property
 > ```
 ---
 ## This package may or may not be used in advanced development
