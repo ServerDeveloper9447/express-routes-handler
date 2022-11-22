@@ -1,3 +1,4 @@
+const chalk = require('chalk')
 /**
  * 
  * @param {Object} app - Express initialized. Ex: `express()` 
