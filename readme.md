@@ -81,9 +81,9 @@ const options = {
 } 
 ```
 ---
-> Changelog 26-Oct-22
+> Changelog 05-Dec-22
 > ```diff
-> + Fixed breaking of package when disabled route has array in method property
+> + Fixed the 404 page function to work on all http methods
 > ```
 ---
 ## This package may or may not be used in advanced development

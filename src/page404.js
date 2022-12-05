@@ -9,11 +9,11 @@ const chalk = require('chalk')
  */
  module.exports = (app, func) => {
     if (!func) {
-      app.get('/*', (req, res) => {
+      app.all('/*', (req, res) => {
         res.status(404).send({ status: 404, message: "Not Found" })
       })
     } else {
-      app.get('/*', (req, res) => {
+      app.all('/*', (req, res) => {
         func(req, res)
       })
     }
