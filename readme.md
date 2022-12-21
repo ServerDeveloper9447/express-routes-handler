@@ -81,10 +81,15 @@ const options = {
 } 
 ```
 ---
-> Changelog 05-Dec-22
+> Changelog 21-Dec-22
 > ```diff
-> + Fixed the 404 page function to work on all http methods
+> + Can now read a whole document tree
 > ```
+> **Upcoming changes**
+> ```txt
+> Read ability of multiple module exports in one file
+> ```
+
 ---
 ## This package may or may not be used in advanced development
 This package will not be responsible for breaking of your express server (honestly, how that would even happen?)<br>Feel free to check the source code and suggest new features<br>

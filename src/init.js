@@ -87,6 +87,7 @@ function parseMethodList(arg) {
     return cmt(arg)
   }
 }
+const walk = require('walk')
 /**
 * @param {Object} app Express Initialized. Ex: `express()`
 * @param {String} path_to_dir Path to the directory with all the endpoint files
@@ -96,7 +97,6 @@ module.exports = (app, path_to_dir) => {
   if (!app) throw new Error("Must provide app where app = express()")
   if (!path_to_dir) throw new Error("Must provide path_to_dir where path_to_dir = the path to the directory containing all endpoint files (js).")
   console.log(chalk.blueBright("Loading endpoints..."))
-  const mainarr = []
   try {
     fs.accessSync(path_to_dir, fs.R_OK)
   } catch (err) {
@@ -104,26 +104,34 @@ module.exports = (app, path_to_dir) => {
   }
   if (!fs.lstatSync(path_to_dir).isDirectory()) throw new Error("Path must be a directory");
   const path = require('path').resolve(path_to_dir)
-  fs.readdirSync(path_to_dir).forEach(file => {
-    if (fs.lstatSync(path_to_dir + `/${file}`).isDirectory()) return;
-    const subarr = []
-    if (require(`${path}/${file}`)[0] != null) throw new Error("This package doesn't currently support multiple module.exports in one file.");
-    const route = require(`${path}/${file}`);
-    if (!route.name) throw new Error(`${file} cannot be loaded due to the route name parameter being empty. Please move the file to a different directory or provide valid parameters to avoid errors.`);
+  const walker = walk.walk(path,{followLinks: false})
+  const files = []
+  const filenames = {}
+  walker.on('file',(root,stat,next) => {
+    files.push(`${root}/${stat.name}`)
+    filenames[`${root}/${stat.name}`] = stat.name
+    next()
+  })
+  walker.on('end',() => {
+    const mainarr = []
+    files.forEach(file => {
+      const subarr = []
+      if (require(file)[0] != null) throw new Error("This package doesn't currently support multiple module.exports in one file.");
+      const route = require(file);
+      if (!route.name) throw new Error(`${file} cannot be loaded due to the route name parameter being empty. Please move the file to a different directory or provide valid parameters to avoid errors.`);
     if (!route.run) throw new Error(`${file} cannot be loaded due to no run parameter provided. Please move the file to a different directory or provide valid parameters to avoid errors.`);
-    if ((typeof route.run == 'object')) throw new Error("The run parameter must be a string.");
-    const disable = route.disabled;
-    if(typeof disable == 'object') throw new Error("Disabled parameter must not be an object");
-    const disabled = !disable ? false : disable;
-    if(typeof disabled != 'boolean') throw new Error("Disabled parameter must be a boolean");
-    if(disabled) return subarr.unshift(chalk.red("Disabled")),subarr.unshift(file),subarr.unshift(parseArrayList(route.name)),subarr.unshift(!route.method ? cmt("GET") : parseMethodList(route.method)),mainarr.unshift(subarr);
-    if(!route.method) {
+      if (typeof route.run != 'function') throw new Error("The run parameter must be a function.");
+      const disable = route.disabled;
+      const disabled = !disable ? false : disable;
+      if(typeof disabled != 'boolean') throw new Error("Disabled parameter must a boolean");
+      if(disabled) return subarr.unshift(chalk.red("Disabled")),subarr.unshift(filenames[file]),subarr.unshift(parseArrayList(route.name)),subarr.unshift(!route.method ? cmt("GET") : parseMethodList(route.method)),mainarr.unshift(subarr);
+      if(!route.method) {
       subarr.push(cmt("GET"))
       app.get(parse(route.name),async (req,res) => {
         route.run(req,res)
       })
       subarr.push(parseArrayList(route.name))
-      subarr.push(file)
+      subarr.push(filenames[file])
       subarr.push(chalk.green("Enabled"))
     } else {
       if (typeof route.method == 'object') {
@@ -134,7 +142,7 @@ module.exports = (app, path_to_dir) => {
           })
         })
         subarr.push(parseArrayList(route.name))
-        subarr.push(file)
+        subarr.push(filenames[file])
         subarr.push(chalk.green("Enabled"))
       } else {
         subarr.push(parseMethodList(route.method))
@@ -142,12 +150,13 @@ module.exports = (app, path_to_dir) => {
           route.run(req,res)
         })
         subarr.push(parseArrayList(route.name))
-        subarr.push(file)
+        subarr.push(filenames[file])
         subarr.push(chalk.green("Enabled"))
       }
     }
-    mainarr.push(subarr)
-  })
-  mainarr.unshift([chalk.yellowBright("Method"), chalk.yellowBright("Route"), chalk.yellowBright("File"), chalk.yellowBright("Status")])
+      mainarr.push(subarr)
+    })
+    mainarr.unshift([chalk.yellowBright("Method"), chalk.yellowBright("Route"), chalk.yellowBright("File"), chalk.yellowBright("Status")])
   console.log(table(mainarr, tableconf))
+  })
 }
