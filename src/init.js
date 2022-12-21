@@ -158,5 +158,6 @@ module.exports = (app, path_to_dir) => {
     })
     mainarr.unshift([chalk.yellowBright("Method"), chalk.yellowBright("Route"), chalk.yellowBright("File"), chalk.yellowBright("Status")])
   console.log(table(mainarr, tableconf))
+  console.log(`Handler version: ${require(__dirname+'/package.json').version} || CraftBlur Official Development Team`)
   })
 }
