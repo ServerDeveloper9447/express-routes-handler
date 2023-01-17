@@ -1,6 +1,6 @@
 {
     "name": "express-routes-handler",
-    "version": "1.3.0",
+    "version": "1.3.0-f",
     "description": "Simplest routes handler for Express",
     "main": "exports.js",
     "dependencies": {
