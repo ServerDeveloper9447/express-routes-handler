@@ -40,23 +40,16 @@ const express = require('express'); //ah yes, semicolons
 const app = express();
 const handler = require('express-routes-handler');
 
-handler(app,'./routes'); // This loads all the endpoints in routes folder
+handler(app,'./routes', /* Omittable => */(req,res) => {
+  // res.status(404).send({status:404,message:"Not Found"})
+  // or any code
+}); // This loads all the endpoints in routes folder
+
 
 //Now for the listener part
 app.listen(/*Port name*/,/*Omittable callback function*/);
 ```
 Now you've got yourself a simple express app.
-
----
-
-This package comes with a handy 404 page support.
-```js
-handler.page404( app, ( req , res ) => {
-    // res.status(404).send({status:404})
-    // Or something of your choice
-})
-// This must be put after the handler(app,'./routes') function
-```
 
 ---
 
@@ -83,7 +76,7 @@ const options = {
 ---
 > Changelog 21-Dec-22
 > ```diff
-> + Can now read a whole document tree
+> + The page404 function is now built into the initialization function to avoid node asyncronous function execution problems
 > ```
 > **Upcoming changes**
 > ```txt

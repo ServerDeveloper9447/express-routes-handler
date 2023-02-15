@@ -93,7 +93,9 @@ const walk = require('walk')
 * @param {String} path_to_dir Path to the directory with all the endpoint files
 * @returns null
 */
-module.exports = (app, path_to_dir) => {
+module.exports = (app, path_to_dir, ntf = (req,res) => {
+  res.status(404).send({status:404,message:"Not Found"})
+}) => {
   if (!app) throw new Error("Must provide app where app = express()")
   if (!path_to_dir) throw new Error("Must provide path_to_dir where path_to_dir = the path to the directory containing all endpoint files (js).")
   console.log(chalk.blueBright("Loading endpoints..."))
@@ -158,6 +160,11 @@ module.exports = (app, path_to_dir) => {
     })
     mainarr.unshift([chalk.yellowBright("Method"), chalk.yellowBright("Route"), chalk.yellowBright("File"), chalk.yellowBright("Status")])
   console.log(table(mainarr, tableconf))
-  console.log(`Handler version: ${require(__dirname+'/package.json').version} || CraftBlur Official Development Team`)
+  console.log(`Handler version: ${require('../package.json').version} || CraftBlur Official Development Team`)
+  process.nextTick(() => {
+    if(ntf) {
+    require('./page404.js')(app,ntf)
+  }
+  })
   })
 }
